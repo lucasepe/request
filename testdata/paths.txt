@@ -1,0 +1,4 @@
+
+current-user: "/Platform/User/GetMembershipsForCurrentUser/"
+characters-with-equipment: "/Platform/Destiny2/{membershipType}/Profile/{destinyMembershipId}/{?components}"
+StringVariables: 1200
