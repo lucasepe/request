@@ -12,6 +12,15 @@ import (
 	"github.com/lucasepe/request/uritemplates"
 )
 
+func NewPathParam(key string, val any) PathParam {
+	s, err := toStringE(val)
+	if err == nil {
+		return PathParam{Name: key, Value: err.Error()}
+	}
+
+	return PathParam{Name: key, Value: s}
+}
+
 type PathParam struct {
 	Name  string
 	Value string
