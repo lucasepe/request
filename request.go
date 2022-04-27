@@ -128,6 +128,12 @@ func (r *Request) IntoWriter(w io.Writer) *Request {
 	return r
 }
 
+// ReplyHandler specify the response handler.
+func (r *Request) ReplyHandler(h reply.Handler) *Request {
+	r.handler = h
+	return r
+}
+
 func (r *Request) Do(ctx context.Context) error {
 	req, err := r.build(ctx)
 	if err != nil {
