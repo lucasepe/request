@@ -15,7 +15,7 @@ import (
 
 func NewPathParam(key string, val any) PathParam {
 	s, err := toStringE(val)
-	if err == nil {
+	if err != nil {
 		return PathParam{Name: key, Value: err.Error()}
 	}
 
