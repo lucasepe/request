@@ -9,6 +9,7 @@ import (
 	"net/url"
 
 	"github.com/lucasepe/request/body"
+	"github.com/lucasepe/request/reply"
 	"github.com/lucasepe/request/uritemplates"
 )
 
@@ -33,7 +34,7 @@ type Request struct {
 	pathParams   map[string]string
 	headers      map[string]string
 	bodyGetter   body.Getter
-	handler      ResponseHandler
+	handler      reply.Handler
 	client       *http.Client
 	roundTripper http.RoundTripper
 }
@@ -99,31 +100,31 @@ func (r *Request) Body(src body.Getter) *Request {
 
 // Into decodes a response as a JSON object.
 func (r *Request) Into(v any) *Request {
-	r.handler = ToAny(v)
+	r.handler = reply.ToAny(v)
 	return r
 }
 
 // IntoString writes the response body to the provided string pointer.
 func (r *Request) IntoString(sp *string) *Request {
-	r.handler = ToString(sp)
+	r.handler = reply.ToString(sp)
 	return r
 }
 
 // IntoBufioReader takes a callback which wraps the response body in a bufio.Reader.
 func (r *Request) IntoBufioReader(f func(r *bufio.Reader) error) *Request {
-	r.handler = ToBufioReader(f)
+	r.handler = reply.ToBufioReader(f)
 	return r
 }
 
 // IntoBytesBuffer writes the response body to the provided bytes.Buffer.
 func (r *Request) IntoBytesBuffer(buf *bytes.Buffer) *Request {
-	r.handler = ToBytesBuffer(buf)
+	r.handler = reply.ToBytesBuffer(buf)
 	return r
 }
 
 // IntoWriter copies the response body to w.
 func (r *Request) IntoWriter(w io.Writer) *Request {
-	r.handler = ToWriter(w)
+	r.handler = reply.ToWriter(w)
 	return r
 }
 
@@ -133,7 +134,7 @@ func (r *Request) Do(ctx context.Context) error {
 		return err
 	}
 
-	cl := http.DefaultClient
+	cl := DefaultClient()
 	if r.client != nil {
 		cl = r.client
 	}
