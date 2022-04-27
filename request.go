@@ -109,7 +109,7 @@ func (r *Request) IntoString(sp *string) *Request {
 	return r
 }
 
-// IntoBytesBuffer takes a callback which wraps the response body in a bufio.Reader.
+// IntoBufioReader takes a callback which wraps the response body in a bufio.Reader.
 func (r *Request) IntoBufioReader(f func(r *bufio.Reader) error) *Request {
 	r.handler = ToBufioReader(f)
 	return r
@@ -118,6 +118,12 @@ func (r *Request) IntoBufioReader(f func(r *bufio.Reader) error) *Request {
 // IntoBytesBuffer writes the response body to the provided bytes.Buffer.
 func (r *Request) IntoBytesBuffer(buf *bytes.Buffer) *Request {
 	r.handler = ToBytesBuffer(buf)
+	return r
+}
+
+// IntoWriter copies the response body to w.
+func (r *Request) IntoWriter(w io.Writer) *Request {
+	r.handler = ToWriter(w)
 	return r
 }
 
