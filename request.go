@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/lucasepe/request/body"
-	"github.com/lucasepe/request/reply"
 	"github.com/lucasepe/request/uritemplates"
 )
 
@@ -33,8 +31,8 @@ type Request struct {
 	path         string
 	pathParams   map[string]string
 	headers      map[string]string
-	bodyGetter   body.Getter
-	handler      reply.Handler
+	bodyGetter   BodyProvider
+	handler      ReplyHandler
 	client       *http.Client
 	roundTripper http.RoundTripper
 }
@@ -90,46 +88,45 @@ func (r *Request) Transport(rt http.RoundTripper) *Request {
 	return r
 }
 
-// Body sets the BodyGetter to use to build the body of a request.
-// The provided BodyGetter is used as an http.Request.GetBody func.
-// It implicitly sets method to POST.
-func (r *Request) Body(src body.Getter) *Request {
+// Body sets the BodyProvider to use to build the body of a request.
+
+func (r *Request) Body(src BodyProvider) *Request {
 	r.bodyGetter = src
 	return r
 }
 
 // Into decodes a response as a JSON object.
 func (r *Request) Into(v any) *Request {
-	r.handler = reply.ToAny(v)
+	r.handler = ToAny(v)
 	return r
 }
 
 // IntoString writes the response body to the provided string pointer.
 func (r *Request) IntoString(sp *string) *Request {
-	r.handler = reply.ToString(sp)
+	r.handler = ToString(sp)
 	return r
 }
 
 // IntoBufioReader takes a callback which wraps the response body in a bufio.Reader.
 func (r *Request) IntoBufioReader(f func(r *bufio.Reader) error) *Request {
-	r.handler = reply.ToBufioReader(f)
+	r.handler = ToBufioReader(f)
 	return r
 }
 
 // IntoBytesBuffer writes the response body to the provided bytes.Buffer.
 func (r *Request) IntoBytesBuffer(buf *bytes.Buffer) *Request {
-	r.handler = reply.ToBytesBuffer(buf)
+	r.handler = ToBytesBuffer(buf)
 	return r
 }
 
 // IntoWriter copies the response body to w.
 func (r *Request) IntoWriter(w io.Writer) *Request {
-	r.handler = reply.ToWriter(w)
+	r.handler = ToWriter(w)
 	return r
 }
 
 // ReplyHandler specify the response handler.
-func (r *Request) ReplyHandler(h reply.Handler) *Request {
+func (r *Request) ReplyHandler(h ReplyHandler) *Request {
 	r.handler = h
 	return r
 }
@@ -140,7 +137,7 @@ func (r *Request) Do(ctx context.Context) error {
 		return err
 	}
 
-	cl := DefaultClient()
+	cl := http.DefaultClient
 	if r.client != nil {
 		cl = r.client
 	}
